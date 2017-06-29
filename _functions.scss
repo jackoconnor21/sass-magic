@@ -1,0 +1,48 @@
+/**
+* Create some custom functions to assist development
+**/
+
+// Check for existing key in the given map and return an error colour with a useful message if it doesn't exist.
+@function safe-map($map, $key) {
+    @if map-has-key($map, $key) {
+        @return map-get($map, $key);
+    }
+
+    // Warn the user via the terminal of their issue.
+    @warn "`#{$key}` does not exist in #{$map}.";
+
+    // Return red to indicate an error.
+    @return #FF0000;
+}
+
+// Return colours from the our-colour map for speed
+@function get-colour($colour) {
+    @return safe-map($our-colours, $colour);
+}
+
+// Get a font by name
+@function get-font($font) {
+    @return safe-map($our-fonts, $font);
+}
+
+// a map-set function (not included with Sass)
+@function map-setter($map, $key, $value) {
+    $new: ($key: $value);
+    @return map-merge($map, $new);
+}
+
+// a deep map-get which will return values multiple levels deep
+@function map-fetch($map, $keys) {
+    $key: nth($keys, 1);
+    $length: length($keys);
+    $value: safe-map($map, $key);
+    @if ($length > 1) {
+        $ch: ();
+        @for $i from 2 through $length {
+            $ch: append($ch, nth($keys, $i))
+        }
+        @return map-fetch($value, $ch)
+    } @else {
+        @return $value;
+    }
+}
